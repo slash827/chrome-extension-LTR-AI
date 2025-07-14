@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Hebrew RTL</title>
+    <style>
+        body {
+            width: 300px;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            margin: 0;
+            direction: rtl;
+            text-align: right;
+            background: #f8f9fa;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .logo {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            border-radius: 4px;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .toggle-label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #d1d5db;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #4f46e5;
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(-20px);
+        }
+
+        .mode-container {
+            margin-bottom: 15px;
+        }
+
+        .mode-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .mode-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 13px;
+            color: #374151;
+            direction: rtl;
+        }
+
+        .mode-select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .description {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .status.enabled {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.disabled {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .footer {
+            font-size: 11px;
+            color: #9ca3af;
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .version {
+            font-size: 10px;
+            color: #d1d5db;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">ע</div>
+            <div class="title">AI Hebrew RTL</div>
+        </div>
+
+        <div class="toggle-container">
+            <div class="toggle-label">הפעל יישור עברית</div>
+            <div class="toggle-switch" id="toggleSwitch">
+                <div class="toggle-knob"></div>
+            </div>
+        </div>
+
+        <div class="description">
+            התוסף מזהה אוטומטית טקסט עברית ומיישר אותו לימין לקריאה נוחה יותר בפלטפורמות AI שונות.
+        </div>
+
+        <div class="mode-container">
+            <div class="mode-label">מצב יישור:</div>
+            <select id="alignmentMode" class="mode-select">
+                <option value="smart">חכם (לפי מילה ראשונה)</option>
+                <option value="auto">אוטומטי (לפי אחוזים)</option>
+                <option value="force">כפוי (כל עברית)</option>
+            </select>
+        </div>
+
+        <div class="status enabled" id="status">
+            התוסף פעיל
+        </div>
+
+        <div class="footer">
+            <div>ChatGPT, Claude, Gemini, Perplexity ועוד</div>
+            <div class="version">גרסה 1.1</div>
+        </div>
+    </div>
+
+    <script>
+        // Load settings and update UI
+        chrome.storage.sync.get(['hebrewRTLEnabled', 'alignmentMode'], (result) => {
+            const isEnabled = result.hebrewRTLEnabled !== false;
+            const mode = result.alignmentMode || 'smart';
+            updateUI(isEnabled);
+            document.getElementById('alignmentMode').value = mode;
+        });
+
+        // Listen for toggle switch click
+        document.getElementById('toggleSwitch').addEventListener('click', () => {
+            const toggleSwitch = document.getElementById('toggleSwitch');
+            const isEnabled = !toggleSwitch.classList.contains('active');
+
+            // Update UI
+            updateUI(isEnabled);
+
+            // Save settings
+            chrome.storage.sync.set({ hebrewRTLEnabled: isEnabled });
+
+            // Send message to content script
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs[0]) {
+                    chrome.tabs.sendMessage(tabs[0].id, {
+                        action: 'toggle',
+                        enabled: isEnabled
+                    }).catch(() => {
+                        // Ignore errors if content script not loaded
+                    });
+                }
+            });
+        });
+
+        // Listen for mode changes
+        document.getElementById('alignmentMode').addEventListener('change', (e) => {
+            const mode = e.target.value;
+
+            // Save settings
+            chrome.storage.sync.set({ alignmentMode: mode });
+
+            // Send message to content script
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs[0]) {
+                    chrome.tabs.sendMessage(tabs[0].id, {
+                        action: 'setMode',
+                        mode: mode
+                    }).catch(() => {
+                        // Ignore errors if content script not loaded
+                    });
+                }
+            });
+        });
+
+        function updateUI(isEnabled) {
+            const toggleSwitch = document.getElementById('toggleSwitch');
+            const status = document.getElementById('status');
+
+            if (isEnabled) {
+                toggleSwitch.classList.add('active');
+                status.textContent = 'התוסף פעיל';
+                status.className = 'status enabled';
+            } else {
+                toggleSwitch.classList.remove('active');
+                status.textContent = 'התוסף כבוי';
+                status.className = 'status disabled';
+            }
+        }
+    </script>
+</body>
+
+</html>

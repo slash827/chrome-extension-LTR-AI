@@ -1,0 +1,170 @@
+/* RTL alignment for Hebrew text */
+.hebrew-rtl {
+    direction: rtl !important;
+    text-align: right !important;
+    unicode-bidi: embed !important;
+}
+
+/* List alignment */
+.hebrew-rtl ul,
+.hebrew-rtl ol {
+    padding-right: 1.5rem !important;
+    padding-left: 0 !important;
+    text-align: right !important;
+}
+
+.hebrew-rtl li {
+    text-align: right !important;
+}
+
+/* Code elements - Always LTR */
+.force-ltr,
+pre,
+code,
+.highlight,
+[class*="language-"],
+[class*="hljs"],
+.code-block,
+[data-language],
+.cm-editor,
+.monaco-editor,
+[class*="prism"],
+.syntax-highlight {
+    direction: ltr !important;
+    text-align: left !important;
+    unicode-bidi: embed !important;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+}
+
+/* Nested elements within code blocks */
+.force-ltr *,
+pre *,
+code *,
+.highlight *,
+[class*="language-"] *,
+[class*="hljs"] *,
+.code-block *,
+[data-language] *,
+.cm-editor *,
+.monaco-editor *,
+[class*="prism"] *,
+.syntax-highlight * {
+    direction: ltr !important;
+    text-align: left !important;
+    unicode-bidi: embed !important;
+}
+
+/* Inline code within RTL text */
+.hebrew-rtl code,
+.hebrew-rtl .force-ltr {
+    direction: ltr !important;
+    text-align: left !important;
+    unicode-bidi: embed !important;
+    display: inline-block !important;
+}
+
+/* Pre blocks within RTL containers */
+.hebrew-rtl pre {
+    direction: ltr !important;
+    text-align: left !important;
+    unicode-bidi: bidi-override !important;
+    display: block !important;
+}
+
+/* Code block containers */
+.hebrew-rtl .highlight,
+.hebrew-rtl [class*="language-"],
+.hebrew-rtl [class*="hljs"],
+.hebrew-rtl .code-block,
+.hebrew-rtl [data-language] {
+    direction: ltr !important;
+    text-align: left !important;
+    unicode-bidi: bidi-override !important;
+}
+
+/* Link alignment */
+.hebrew-rtl a {
+    direction: rtl !important;
+    unicode-bidi: embed !important;
+}
+
+/* Table alignment */
+.hebrew-rtl table {
+    direction: rtl !important;
+}
+
+.hebrew-rtl th,
+.hebrew-rtl td {
+    text-align: right !important;
+}
+
+/* Blockquote alignment */
+.hebrew-rtl blockquote {
+    border-left: none !important;
+    border-right: 4px solid #e5e7eb !important;
+    padding-left: 0 !important;
+    padding-right: 1rem !important;
+    margin-left: 0 !important;
+    margin-right: 1.5rem !important;
+}
+
+/* Header alignment */
+.hebrew-rtl h1,
+.hebrew-rtl h2,
+.hebrew-rtl h3,
+.hebrew-rtl h4,
+.hebrew-rtl h5,
+.hebrew-rtl h6 {
+    text-align: right !important;
+}
+
+/* Paragraph alignment */
+.hebrew-rtl p {
+    text-align: right !important;
+}
+
+/* Numbered list position */
+.hebrew-rtl ol {
+    list-style-position: inside !important;
+}
+
+/* Inline elements */
+.hebrew-rtl strong,
+.hebrew-rtl em,
+.hebrew-rtl span {
+    unicode-bidi: embed !important;
+}
+
+/* Input elements (if present) */
+.hebrew-rtl input[type="text"],
+.hebrew-rtl textarea {
+    direction: rtl !important;
+    text-align: right !important;
+}
+
+/* Word wrapping for mixed content */
+.hebrew-rtl {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+/* Claude-specific elements */
+.hebrew-rtl div[class*="prose"] {
+    direction: rtl !important;
+}
+
+/* Mixed Hebrew-English text support */
+.hebrew-rtl * {
+    unicode-bidi: embed !important;
+}
+
+/* Symbols and emojis */
+.hebrew-rtl::before,
+.hebrew-rtl::after {
+    unicode-bidi: embed !important;
+}
+
+/* Smooth transition animation */
+.hebrew-rtl {
+    transition: direction 0.2s ease !important;
+}
