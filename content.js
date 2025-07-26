@@ -248,10 +248,10 @@ class AIHebrewRTL {
     processMessage(element) {
         if (!this.isEnabled) return;
 
-        // Handle code elements separately
+        // Handle code elements separately - they should always be LTR
         this.processCodeElements(element);
 
-        // Force LTR for specific elements
+        // Force LTR for specific elements (like math expressions)
         if (this.shouldBeForcedLTR(element)) {
             element.classList.remove('hebrew-rtl');
             element.classList.add('force-ltr');
@@ -259,17 +259,74 @@ class AIHebrewRTL {
             return;
         }
 
-        const textContent = element.textContent || element.innerText;
+        // Process individual paragraphs and text blocks within the message
+        this.processParagraphs(element);
+    }
 
-        if (this.shouldBeRTL(textContent)) {
-            element.classList.add('hebrew-rtl');
-            element.classList.remove('force-ltr');
-            element.setAttribute('dir', 'rtl');
-        } else {
-            element.classList.remove('hebrew-rtl');
-            element.classList.remove('force-ltr');
-            element.removeAttribute('dir');
+    // Process individual paragraphs for line-by-line RTL detection
+    processParagraphs(parentElement) {
+        // Find all paragraph-like elements within the message
+        const textElements = [
+            ...parentElement.querySelectorAll('p, div, span, li, h1, h2, h3, h4, h5, h6'),
+            parentElement // Include the parent element itself
+        ];
+
+        textElements.forEach(element => {
+            // Skip if this element is a code element
+            if (this.isCodeElement(element) || this.shouldBeForcedLTR(element)) {
+                element.classList.remove('hebrew-rtl');
+                element.classList.add('force-ltr');
+                element.setAttribute('dir', 'ltr');
+                return;
+            }
+
+            // Get only the direct text content of this element (not nested elements)
+            const directText = this.getDirectTextContent(element);
+
+            // Skip elements with no direct text content
+            if (!directText || !directText.trim()) {
+                return;
+            }
+
+            // Apply RTL/LTR based on first word only
+            if (this.shouldBeRTLByFirstWord(directText)) {
+                element.classList.add('hebrew-rtl');
+                element.classList.remove('force-ltr');
+                element.setAttribute('dir', 'rtl');
+            } else {
+                element.classList.remove('hebrew-rtl');
+                element.classList.remove('force-ltr');
+                element.setAttribute('dir', 'ltr');
+            }
+        });
+    }
+
+    // Get direct text content of element (excluding nested elements)
+    getDirectTextContent(element) {
+        let text = '';
+        for (const node of element.childNodes) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                text += node.textContent;
+            }
         }
+        return text;
+    }
+
+    // Determine RTL alignment based on first meaningful word only
+    shouldBeRTLByFirstWord(text) {
+        if (!this.hasHebrew(text)) return false;
+
+        const trimmed = text.trim();
+        if (!trimmed) return false;
+
+        // Find the first meaningful word (skip punctuation and spaces)
+        const firstWordMatch = trimmed.match(/^[\s\p{P}]*(\p{L}+)/u);
+        if (!firstWordMatch) return false;
+
+        const firstWord = firstWordMatch[1];
+
+        // Check if the first word contains Hebrew characters
+        return /[\u0590-\u05FF]/.test(firstWord);
     }
 
     // Process code elements within a message
