@@ -10,7 +10,7 @@ Smart RTL text alignment extension for Hebrew text in AI chat platforms.
   - **Auto**: Aligns based on Hebrew percentage (30% threshold)
   - **Force**: Forces RTL for any text containing Hebrew
 - **Mixed Text Support**: Handles Hebrew-English mixed content intelligently
-- **Multi-Platform**: Works on ChatGPT, Claude, Gemini, Perplexity, and more
+- **Multi-Platform**: Works on ChatGPT, Claude and more
 - **Toggle Control**: Easy on/off switch
 - **Performance**: Lightweight with no impact on browser speed
 - **Privacy**: All code runs locally, no data sent externally
@@ -19,11 +19,7 @@ Smart RTL text alignment extension for Hebrew text in AI chat platforms.
 
 - Claude AI (claude.ai)
 - ChatGPT (chat.openai.com, chatgpt.com)
-- Google Gemini (gemini.google.com)
-- Perplexity AI (perplexity.ai)
-- Poe (poe.com)
-- Character.AI (character.ai)
-- You.com (you.com)
+- MathGPT (math-gpt.org)
 
 ## Installation
 

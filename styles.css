@@ -7,17 +7,17 @@
 }
 
 /* Code elements - Always LTR, minimal styling */
-pre,
-code,
-.highlight,
-[class*="language-"],
-[class*="hljs"],
-.code-block,
-[data-language],
-.cm-editor,
-.monaco-editor,
-[class*="prism"],
-.syntax-highlight {
+pre.force-ltr,
+code.force-ltr,
+.highlight.force-ltr,
+[class*="language-"].force-ltr,
+[class*="hljs"].force-ltr,
+.code-block.force-ltr,
+[data-language].force-ltr,
+.cm-editor.force-ltr,
+.monaco-editor.force-ltr,
+[class*="prism"].force-ltr,
+.syntax-highlight.force-ltr {
   direction: ltr !important;
   text-align: left !important;
 }
@@ -28,21 +28,21 @@ code,
   text-align: left !important;
 }
 
-/* Lists in RTL context */
+/* Lists in RTL context - less aggressive */
 .hebrew-rtl ul,
 .hebrew-rtl ol {
-  padding-right: 1.5rem !important;
-  padding-left: 0 !important;
+  padding-right: 1.5rem;
+  padding-left: 0;
 }
 
-/* Blockquotes in RTL context */
+/* Blockquotes in RTL context - less aggressive */
 .hebrew-rtl blockquote {
-  border-left: none !important;
-  border-right: 4px solid currentColor !important;
-  padding-left: 0 !important;
-  padding-right: 1rem !important;
-  margin-left: 0 !important;
-  margin-right: 1.5rem !important;
+  border-left: none;
+  border-right: 4px solid currentColor;
+  padding-left: 0;
+  padding-right: 1rem;
+  margin-left: 0;
+  margin-right: 1.5rem;
 }
 
 /* Ensure code within RTL text stays LTR */

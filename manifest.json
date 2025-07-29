@@ -12,13 +12,15 @@
       "matches": [
         "https://claude.ai/*",
         "https://*.claude.ai/*",
+
         "https://chat.openai.com/*",
         "https://chatgpt.com/*",
+
         "https://math-gpt.org/*"
       ],
       "js": ["content.js"],
       "css": ["styles.css"],
-      "run_at": "document_end"
+      "run_at": "document_idle"
     }
   ],
   "action": {

@@ -3,6 +3,8 @@ class AIHebrewRTL {
     constructor() {
         this.isEnabled = true;
         this.alignmentMode = 'smart'; // 'smart', 'auto', 'force'
+        this.observer = null; // Track MutationObserver
+        this.mutationTimeout = null; // Track timeout for throttling
         this.supportedSites = {
             'claude.ai': {
                 selectors: [
@@ -28,37 +30,13 @@ class AIHebrewRTL {
                     '[data-testid*="conversation-turn"]'
                 ]
             },
-            'gemini.google.com': {
-                selectors: [
-                    '[data-test-id*="conversation-turn"]',
-                    '[class*="message"]',
-                    '.markdown',
-                    '[role="presentation"]'
-                ]
-            },
-            'perplexity.ai': {
+            'math-gpt.org': {
                 selectors: [
                     '[class*="message"]',
-                    '.prose',
-                    '[role="presentation"]'
-                ]
-            },
-            'poe.com': {
-                selectors: [
-                    '[class*="Message"]',
-                    '[class*="message"]'
-                ]
-            },
-            'character.ai': {
-                selectors: [
-                    '[class*="message"]',
-                    '[data-testid*="message"]'
-                ]
-            },
-            'you.com': {
-                selectors: [
-                    '[class*="message"]',
-                    '[data-testid*="message"]'
+                    '[data-testid*="message"]',
+                    '.chat-message',
+                    '[class*="conversation"]',
+                    '[class*="response"]'
                 ]
             }
         };
@@ -66,14 +44,19 @@ class AIHebrewRTL {
     }
 
     init() {
-        // Load settings
+        // Load settings first
         this.loadSettings();
 
-        // Observe DOM changes
-        this.observeChanges();
+        // Add a delay to let the page fully load before processing
+        setTimeout(() => {
+            if (this.isEnabled) {
+                // Observe DOM changes
+                this.observeChanges();
 
-        // Process existing messages
-        this.processExistingMessages();
+                // Process existing messages
+                this.processExistingMessages();
+            }
+        }, 2000); // 2 second delay
 
         // Listen for popup messages
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -248,19 +231,23 @@ class AIHebrewRTL {
     processMessage(element) {
         if (!this.isEnabled) return;
 
-        // Handle code elements separately - they should always be LTR
-        this.processCodeElements(element);
+        try {
+            // Handle code elements separately - they should always be LTR
+            this.processCodeElements(element);
 
-        // Force LTR for specific elements (like math expressions)
-        if (this.shouldBeForcedLTR(element)) {
-            element.classList.remove('hebrew-rtl');
-            element.classList.add('force-ltr');
-            element.setAttribute('dir', 'ltr');
-            return;
+            // Force LTR for specific elements (like math expressions)
+            if (this.shouldBeForcedLTR(element)) {
+                element.classList.remove('hebrew-rtl');
+                element.classList.add('force-ltr');
+                element.setAttribute('dir', 'ltr');
+                return;
+            }
+
+            // Process individual paragraphs and text blocks within the message
+            this.processParagraphs(element);
+        } catch (error) {
+            console.debug('AI Hebrew RTL: Error processing message', error);
         }
-
-        // Process individual paragraphs and text blocks within the message
-        this.processParagraphs(element);
     }
 
     // Process individual paragraphs for line-by-line RTL detection
@@ -383,9 +370,31 @@ class AIHebrewRTL {
 
     // Observe DOM changes for dynamic content
     observeChanges() {
+        // Don't start observing immediately if page isn't ready
+        if (!this.isEnabled) return;
+        
         const siteConfig = this.getCurrentSiteConfig();
 
         const observer = new MutationObserver((mutations) => {
+            // Throttle mutations to prevent overwhelming the browser
+            clearTimeout(this.mutationTimeout);
+            this.mutationTimeout = setTimeout(() => {
+                this.processMutations(mutations, siteConfig);
+            }, 100); // 100ms delay
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+
+        this.observer = observer; // Store reference for cleanup
+    }
+
+    // Process mutations with error handling
+    processMutations(mutations, siteConfig) {
+        try {
             mutations.forEach((mutation) => {
                 // Handle new nodes
                 mutation.addedNodes.forEach((node) => {
@@ -441,20 +450,26 @@ class AIHebrewRTL {
                     }
                 }
             });
-        });
-
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-            characterData: true
-        });
+        } catch (error) {
+            console.debug('AI Hebrew RTL: Error processing mutations', error);
+        }
     }
 
     // Toggle RTL functionality on/off
     toggleRTL() {
         if (this.isEnabled) {
+            // Start observing if not already
+            if (!this.observer) {
+                this.observeChanges();
+            }
             this.processExistingMessages();
         } else {
+            // Stop observing to reduce performance impact
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+            
             // Remove all RTL styling
             const rtlElements = document.querySelectorAll('.hebrew-rtl, .force-ltr');
             rtlElements.forEach(element => {
